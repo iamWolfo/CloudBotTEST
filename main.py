@@ -2,6 +2,7 @@ import datetime as dt
 import os
 
 import scratchattach as scratch3
+from online import keep_alive
 
 
 session = scratch3.Session(os.environ["BOT_SESSION"], username="The_Craftor")
@@ -45,6 +46,7 @@ def plural(number: float):
 @client.event
 def on_ready():
   print("Request handler is running")
+  keep_alive()
 
 
 ###
