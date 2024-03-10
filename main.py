@@ -1,34 +1,54 @@
-import logging
-import logging.handlers
+import datetime as dt
 import os
 
-import requests
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-logger_file_handler = logging.handlers.RotatingFileHandler(
-    "status.log",
-    maxBytes=1024 * 1024,
-    backupCount=1,
-    encoding="utf8",
-)
-formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-logger_file_handler.setFormatter(formatter)
-logger.addHandler(logger_file_handler)
-
-try:
-    SOME_SECRET = os.environ["SOME_SECRET"]
-except KeyError:
-    SOME_SECRET = "Token not available!"
-    #logger.info("Token not available!")
-    #raise
+import scratchattach as scratch3
 
 
-if __name__ == "__main__":
-    logger.info(f"Token value: {SOME_SECRET}")
+session = scratch3.Session(os.environ["BOT_SESSION"], username="The_Craftor")
 
-    r = requests.get('https://weather.talkpython.fm/api/weather/?city=Berlin&country=DE')
-    if r.status_code == 200:
-        data = r.json()
-        temperature = data["forecast"]["temp"]
-        logger.info(f'Weather in Berlin: {temperature}')
+conn = session.connect_cloud(project_id="964103689")
+
+client = scratch3.CloudRequests(cloud_connection=conn,
+                                used_cloud_vars=["1", "2", "3", "4", "5", "6"])
+
+
+@client.request
+def ping(stamp=None):
+  if stamp is None:
+    return "pong !"
+  else:
+    date_today = dt.datetime(dt.datetime.now().year,
+                             dt.datetime.now().month,
+                             dt.datetime.now().day,
+                             dt.datetime.now().hour+1,
+                             dt.datetime.now().minute,
+                             dt.datetime.now().second,
+                             dt.datetime.now().microsecond)
+    date_2000 = dt.datetime(2000, 1, 1, 0, 0, 0, 0)
+    timestamp_diff = (date_today - date_2000).total_seconds()
+    total = float(stamp) - timestamp_diff
+    return str(total)
+
+
+def plural(number: float):
+  if number > 1 and number < 2:
+    return ""
+  else:
+    return "s"
+
+
+###
+
+###
+
+
+@client.event
+def on_ready():
+  print("Request handler is running")
+
+
+###
+
+###
+
+client.run()
